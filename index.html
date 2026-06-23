@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAIS / Audenza — US CPA NDA Generator</title>
+
+<!-- docx (dolanmiu) for Word generation -->
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  :root{
+    --navy:#053D70;
+    --navy-dark:#032b50;
+    --gold:#FFC000;
+    --gold-dark:#d9a300;
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --border:#dde3eb;
+    --text:#1c2733;
+    --text-soft:#5b6b7d;
+    --danger:#c0392b;
+    --ok:#1d8a4a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+    color:#fff;
+    padding:22px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  header h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:.3px;
+  }
+  header h1 span{color:var(--gold);}
+  header .sub{font-size:12.5px;color:#cfe0f0;margin-top:3px;}
+  .topbar-actions{display:flex;gap:10px;align-items:center;}
+  .badge{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    padding:5px 11px;
+    border-radius:20px;
+    font-size:12px;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:24px 20px 60px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:6px;
+    width:fit-content;
+  }
+  .tab-btn{
+    border:none;
+    background:transparent;
+    padding:9px 18px;
+    border-radius:7px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-soft);
+    cursor:pointer;
+  }
+  .tab-btn.active{background:var(--navy);color:#fff;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:880px){.grid2{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px 22px;
+    box-shadow:0 1px 3px rgba(20,40,70,.04);
+  }
+  .card h2{
+    margin:0 0 4px;
+    font-size:15px;
+    color:var(--navy);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  .card .hint{
+    font-size:12px;
+    color:var(--text-soft);
+    margin:0 0 16px;
+  }
+  label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    margin:14px 0 5px;
+  }
+  label .opt{color:var(--text-soft);font-weight:400;}
+  input[type=text],input[type=date],select,textarea{
+    width:100%;
+    padding:9px 11px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    font-size:13.5px;
+    color:var(--text);
+    background:#fbfcfe;
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;
+    border-color:var(--navy);
+    background:#fff;
+  }
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:600px){.row3,.row2{grid-template-columns:1fr;}}
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-top:10px;
+    background:#fbfcfe;
+  }
+  .toggle-row .label-block{font-size:13px;}
+  .toggle-row .label-block .small{display:block;font-size:11px;color:var(--text-soft);font-weight:400;margin-top:1px;}
+  .switch{position:relative;width:42px;height:23px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{
+    position:absolute;cursor:pointer;inset:0;
+    background:#c9d2dd;border-radius:30px;transition:.15s;
+  }
+  .slider:before{
+    content:"";position:absolute;width:17px;height:17px;left:3px;top:3px;
+    background:#fff;border-radius:50%;transition:.15s;
+  }
+  .switch input:checked + .slider{background:var(--navy);}
+  .switch input:checked + .slider:before{transform:translateX(19px);}
+
+  .clause-card{border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px;background:#fbfcfe;}
+  .clause-card .ctitle{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+  .clause-card select{margin-top:2px;}
+
+  .btn{
+    border:none;
+    border-radius:8px;
+    padding:11px 18px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+  }
+  .btn-primary{background:var(--gold);color:var(--navy-dark);}
+  .btn-primary:hover{background:var(--gold-dark);}
+  .btn-secondary{background:var(--navy);color:#fff;}
+  .btn-secondary:hover{background:var(--navy-dark);}
+  .btn-outline{background:#fff;color:var(--navy);border:1px solid var(--navy);}
+  .btn-outline:hover{background:#eef4fa;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+
+  .preview-wrap{
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:0;overflow:hidden;
+  }
+  .preview-toolbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 20px;border-bottom:1px solid var(--border);background:#fafbfd;
+    flex-wrap:wrap;gap:10px;
+  }
+  .preview-toolbar .nda-no{font-size:13px;color:var(--text-soft);}
+  .preview-toolbar .nda-no b{color:var(--navy);}
+  #docPreview{
+    padding:40px 50px;
+    font-family:'Times New Roman',Georgia,serif;
+    font-size:13.5px;
+    line-height:1.6;
+    color:#111;
+    max-width:850px;
+    margin:0 auto;
+  }
+  #docPreview h1{font-size:17px;text-align:center;margin-bottom:2px;letter-spacing:.5px;}
+  #docPreview .doc-sub{text-align:center;font-size:12.5px;color:#444;margin-bottom:18px;}
+  #docPreview h2{font-size:13.5px;margin:20px 0 6px;text-transform:uppercase;}
+  #docPreview p{margin:0 0 10px;}
+  #docPreview .blank{border-bottom:1px solid #555;padding:0 2px;font-weight:600;}
+  #docPreview .sig-block{margin-top:14px;}
+  #docPreview .sig-line{margin:14px 0 4px;}
+  .status-pill{
+    display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+  }
+  .status-Draft{background:#eef1f5;color:#555;}
+  .status-Sent{background:#fff4d6;color:#946200;}
+  .status-Under-Review{background:#e3eefc;color:#1a5fa8;}
+  .status-Signed{background:#e1f3e8;color:var(--ok);}
+  .status-Expired{background:#fbe5e1;color:var(--danger);}
+
+  table.history{width:100%;border-collapse:collapse;font-size:13px;}
+  table.history th{
+    text-align:left;background:#f4f6f9;color:var(--text-soft);
+    font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;
+    padding:10px 12px;border-bottom:2px solid var(--border);
+  }
+  table.history td{padding:10px 12px;border-bottom:1px solid var(--border);}
+  table.history tr:hover td{background:#fafbfd;}
+  select.status-select{font-size:12px;padding:4px 7px;border-radius:6px;}
+
+  .empty-state{text-align:center;color:var(--text-soft);padding:40px 0;font-size:13.5px;}
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;
+    padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.2);
+    z-index:999;max-width:340px;
+  }
+  .toast.error{background:var(--danger);}
+  .toast.ok{background:var(--ok);}
+  .save-status{font-size:12px;color:var(--text-soft);margin-top:8px;}
+  .req::after{content:" *";color:var(--danger);}
+
+  /* ===== Login screen ===== */
+  #loginScreen{
+    position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 100%);
+    display:flex;align-items:center;justify-content:center;z-index:2000;
+  }
+  .login-card{
+    background:#fff;border-radius:14px;padding:36px 34px;width:100%;max-width:380px;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);
+  }
+  .login-card h2{margin:0 0 4px;color:var(--navy);font-size:18px;}
+  .login-card .sub{font-size:12.5px;color:var(--text-soft);margin-bottom:22px;}
+  .login-card label{margin-top:14px;}
+  .login-card .btn{width:100%;justify-content:center;margin-top:20px;}
+  .login-error{color:var(--danger);font-size:12.5px;margin-top:10px;min-height:16px;}
+  .login-logo{display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+  .login-logo .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);}
+
+  /* ===== Topbar user/session info ===== */
+  .user-pill{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+    color:#fff;padding:5px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:8px;
+  }
+  .user-pill b{color:var(--gold);}
+  .user-pill .timer{font-variant-numeric:tabular-nums;}
+  .btn-logout{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;
+    padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;
+  }
+  .btn-logout:hover{background:rgba(255,255,255,.22);}
+  .owner-tag{font-size:11px;color:var(--text-soft);}
+  .owner-tag b{color:var(--navy);}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN SCREEN ===================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><span class="dot"></span><b style="color:var(--navy);">DAIS Advisors</b></div>
+    <h2>NDA Generator — Sign in</h2>
+    <div class="sub">Enter your assigned user ID and password.</div>
+    <label class="req">User ID</label>
+    <input type="text" id="loginUserId" placeholder="e.g. Employee 1" autocomplete="username">
+    <label class="req">Password</label>
+    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" id="btnLogin">Sign In</button>
+  </div>
+</div>
+
+<header>
+  <div>
+    <h1>DAIS <span>Advisors</span> · US CPA NDA Generator</h1>
+    <div class="sub">Mutual Non-Disclosure Agreement automation — Audenza (India) outsourcing</div>
+  </div>
+  <div class="topbar-actions">
+    <span class="badge" id="connStatus">Connecting…</span>
+    <span class="user-pill" id="userPill" style="display:none;">
+      <span id="userPillName">—</span>
+      <span class="timer" id="sessionTimer">0h 00m</span>
+    </span>
+    <button class="btn-logout" id="btnLogout" style="display:none;">Sign out</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="generator">New NDA</button>
+    <button class="tab-btn" data-view="history">History</button>
+    <button class="tab-btn" data-view="activity" id="tabActivity" style="display:none;">Team Activity</button>
+  </div>
+
+  <!-- ===================== GENERATOR VIEW ===================== -->
+  <div class="view active" id="view-generator">
+    <div class="grid2">
+
+      <!-- LEFT: FORM -->
+      <div>
+
+        <div class="card">
+          <h2>CPA Firm Details</h2>
+          <p class="hint">The counterparty receiving Confidential Information disclosure obligations under this mutual NDA.</p>
+
+          <label class="req">Full legal name of CPA Firm</label>
+          <input type="text" id="cpaName" placeholder="e.g. ABC CPAs LLC">
+
+          <div class="row2">
+            <div>
+              <label class="req">State of incorporation</label>
+              <select id="cpaState"></select>
+            </div>
+            <div>
+              <label>Governing state <span class="opt">(defaults to firm's state)</span></label>
+              <select id="govState"></select>
+            </div>
+          </div>
+
+          <label>Jurisdiction / courts location</label>
+          <input type="text" id="jurisdiction" placeholder="e.g. courts located in Dallas County, Texas">
+
+          <div class="row2">
+            <div>
+              <label class="req">Authorized signatory name</label>
+              <input type="text" id="cpaSigName" placeholder="e.g. John Smith">
+            </div>
+            <div>
+              <label class="req">Designation / title</label>
+              <input type="text" id="cpaSigTitle" placeholder="e.g. Managing Partner">
+            </div>
+          </div>
+
+          <label>Firm address <span class="opt">(optional)</span></label>
+          <textarea id="cpaAddress" rows="2" placeholder="Street, City, State, ZIP"></textarea>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>Audenza Details</h2>
+          <p class="hint">Pre-filled with defaults — adjust if a different entity or signatory is used for this deal.</p>
+
+          <label>Audenza entity</label>
+          <select id="audenzaEntity">
+            <option value="Audenza Private Limited">Audenza Private Limited</option>
+            <option value="Audenza LLP">Audenza LLP</option>
+          </select>
+
+          <div class="row2">
+            <div>
+              <label>Authorized signatory name</label>
+              <input type="text" id="audSigName" value="">
+            </div>
+            <div>
+              <label>Designation / title</label>
+              <input type="text" id="audSigTitle" value="Partner">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>Agreement Terms</h2>
+
+          <div class="row2">
+            <div>
+              <label class="req">Effective date</label>
+              <input type="date" id="effDate">
+            </div>
+            <div>
+              <label>NDA number</label>
+              <input type="text" id="ndaNo" placeholder="auto-generated on save" readonly style="background:#f0f2f5;color:var(--text-soft);">
+            </div>
+          </div>
+
+          <div class="row3">
+            <div>
+              <label>Agreement term</label>
+              <select id="agreementTerm">
+                <option value="2 years">2 years</option>
+                <option value="3 years" selected>3 years (default)</option>
+                <option value="5 years">5 years</option>
+              </select>
+            </div>
+            <div>
+              <label>Confidentiality survival</label>
+              <select id="confSurvival">
+                <option value="3 years">3 years</option>
+                <option value="5 years" selected>5 years (default)</option>
+                <option value="perpetual">Perpetual</option>
+              </select>
+            </div>
+            <div>
+              <label>Non-solicitation period</label>
+              <select id="nonSolicit">
+                <option value="12 months">12 months</option>
+                <option value="24 months" selected>24 months (default)</option>
+                <option value="36 months">36 months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>Liability Clause</h2>
+          <p class="hint">Selects the wording used for Clause 9 (Limitation of Liability).</p>
+          <div class="clause-card">
+            <select id="liabilityOption">
+              <option value="strict">Option A — Strict: no cap; unlimited liability for data breaches (as in original draft)</option>
+              <option value="balanced" selected>Option B — Balanced: liability capped at 2x annual fees (carve-outs still uncapped)</option>
+              <option value="friendly">Option C — Friendly: liability capped at total annual contract value (carve-outs still uncapped)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>Compliance Clauses</h2>
+          <p class="hint">Toggle per CPA firm depending on the actual scope of work and certifications held.</p>
+
+          <div class="toggle-row">
+            <div class="label-block">HIPAA / HITECH Compliance
+              <span class="small">Include only if PHI (healthcare client data) will be shared.</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="incHipaa" checked><span class="slider"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="label-block">SOC 2 Type II Representation
+              <span class="small">Only include if Audenza actually holds this certification/attestation.</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="incSoc2" checked><span class="slider"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="label-block">ISO/IEC 27001 Representation
+              <span class="small">Only include if Audenza actually holds this certification.</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="incIso" checked><span class="slider"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="label-block">Mutual NDA (both parties bound)
+              <span class="small">Off = one-way NDA (Audenza as Receiving Party only).</span>
+            </div>
+            <label class="switch"><input type="checkbox" id="incMutual" checked><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="btnPreview">↻ Update Preview</button>
+          <button class="btn btn-outline" id="btnNewNda">+ New NDA (clear form)</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: PREVIEW -->
+      <div>
+        <div class="preview-wrap">
+          <div class="preview-toolbar">
+            <div class="nda-no">Draft reference: <b id="previewNdaNo">unsaved</b>
+              <span class="owner-tag" id="ownerTag"></span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-outline" id="btnSaveSupabase">💾 Save & Assign NDA No.</button>
+              <button class="btn btn-secondary" id="btnDownloadDocx">⬇ Word (.docx)</button>
+              <button class="btn btn-primary" id="btnDownloadPdf">⬇ PDF</button>
+            </div>
+          </div>
+          <div id="docPreview"><div class="empty-state">Fill the form and click "Update Preview" to see the generated NDA here.</div></div>
+        </div>
+        <div class="save-status" id="saveStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HISTORY VIEW ===================== -->
+  <div class="view" id="view-history">
+    <div class="card">
+      <h2>NDA History</h2>
+      <p class="hint">Showing NDAs you have access to. Click a row to reload it into the generator.</p>
+      <div id="historyTableWrap"><div class="empty-state">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- ===================== TEAM ACTIVITY VIEW (Partner/Manager only) ===================== -->
+  <div class="view" id="view-activity">
+    <div class="card">
+      <h2>Team & Logged-in Hours</h2>
+      <p class="hint">Roles, authority levels, and total logged-in time per team member. Visible to Partners and Manager only.</p>
+      <div id="teamTableWrap"><div class="empty-state">Loading…</div></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <h2>Recent Sessions</h2>
+      <p class="hint">Login/logout log across the team.</p>
+      <div id="sessionTableWrap"><div class="empty-state">Loading…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — Supabase
+   ============================================================ */
+const SUPABASE_URL = "https://tadvgotfygxfluiuhkfc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Rw9_eQQ1HSndL_j7HJ_8lg_71jwVD1v"; // <-- replace with your project's anon/public key
+const REST = SUPABASE_URL + "/rest/v1";
+
+function sbHeaders(extra={}){
+  return Object.assign({
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+    "Content-Type": "application/json"
+  }, extra);
+}
+
+const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming","District of Columbia"];
+
+function populateStates(){
+  const cpaSel = document.getElementById("cpaState");
+  const govSel = document.getElementById("govState");
+  cpaSel.innerHTML = '<option value="">Select state…</option>' + US_STATES.map(s=>`<option value="${s}">${s}</option>`).join("");
+  govSel.innerHTML = '<option value="">Same as firm state</option>' + US_STATES.map(s=>`<option value="${s}">${s}</option>`).join("");
+}
+populateStates();
+
+/* ============================================================
+   TEAM / USERS — authority & role directory
+   "Full Authority" = Partner / Manager: can see and manage every
+   NDA created by anyone on the team, plus the Team Activity tab.
+   "Read and Write" = Employee: can create/edit NDAs, but only
+   sees their own work in History.
+   NOTE: this is app-level access control checked against a
+   Supabase table using the anon key — adequate for internal staff
+   use, not a substitute for real authentication. Don't reuse these
+   passwords anywhere sensitive.
+   ============================================================ */
+const TEAM_DIRECTORY = {
+  "Partner 1": { name:"Manish Kularia", role:"Partner",  authority:"Full Authority", password:"P1@2026" },
+  "Partner 2": { name:"Ankit Chaturvedi", role:"Manager", authority:"Full Authority", password:"P2@2026" },
+  "Employee 1": { name:"Employee No. 1", role:"Employee", authority:"Read and Write", password:"E1@2026" },
+  "Employee 2": { name:"Employee No. 2", role:"Employee", authority:"Read and Write", password:"E2@2026" }
+};
+
+function isFullAuthority(userId){
+  const u = TEAM_DIRECTORY[userId];
+  return !!u && u.authority === "Full Authority";
+}
+
+let CURRENT_USER = null;      // { userId, name, role, authority }
+let CURRENT_SESSION_ID = null; // row id in nda_sessions, for logout time update
+let sessionTickHandle = null;
+let sessionStartMs = null;
+
+function loadStoredSession(){
+  try{
+    const raw = sessionStorage.getItem("nda_tool_session");
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function storeSession(obj){
+  sessionStorage.setItem("nda_tool_session", JSON.stringify(obj));
+}
+function clearStoredSession(){
+  sessionStorage.removeItem("nda_tool_session");
+}
+
+async function attemptLogin(userId, password){
+  const entry = TEAM_DIRECTORY[userId];
+  if(!entry || entry.password !== password){
+    return {ok:false, error:"Incorrect user ID or password."};
+  }
+  CURRENT_USER = { userId, name:entry.name, role:entry.role, authority:entry.authority };
+
+  // log session start in Supabase (best-effort — login still proceeds if this fails)
+  let sessionId = null;
+  if(SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE"){
+    try{
+      const res = await fetch(`${REST}/nda_sessions`, {
+        method:"POST",
+        headers: sbHeaders({Prefer:"return=representation"}),
+        body: JSON.stringify({
+          user_id: userId,
+          display_name: entry.name,
+          role: entry.role,
+          login_at: new Date().toISOString()
+        })
+      });
+      if(res.ok){
+        const rows = await res.json();
+        sessionId = rows[0] && rows[0].id;
+      }
+    }catch(e){ console.warn("Session log (login) failed:", e); }
+  }
+
+  CURRENT_SESSION_ID = sessionId;
+  sessionStartMs = Date.now();
+  storeSession({ user: CURRENT_USER, sessionId: CURRENT_SESSION_ID, startMs: sessionStartMs });
+  return {ok:true};
+}
+
+async function endSession(){
+  if(CURRENT_SESSION_ID && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE"){
+    const seconds = Math.round((Date.now() - sessionStartMs)/1000);
+    try{
+      await fetch(`${REST}/nda_sessions?id=eq.${CURRENT_SESSION_ID}`, {
+        method:"PATCH",
+        headers: sbHeaders(),
+        body: JSON.stringify({ logout_at: new Date().toISOString(), duration_seconds: seconds })
+      });
+    }catch(e){ console.warn("Session log (logout) failed:", e); }
+  }
+  if(sessionTickHandle) clearInterval(sessionTickHandle);
+  clearStoredSession();
+  CURRENT_USER = null; CURRENT_SESSION_ID = null; sessionStartMs = null;
+}
+
+function formatHm(totalSeconds){
+  const h = Math.floor(totalSeconds/3600);
+  const m = Math.floor((totalSeconds%3600)/60);
+  return `${h}h ${String(m).padStart(2,"0")}m`;
+}
+
+function startSessionTimer(){
+  const timerEl = document.getElementById("sessionTimer");
+  if(sessionTickHandle) clearInterval(sessionTickHandle);
+  sessionTickHandle = setInterval(()=>{
+    const elapsed = Math.round((Date.now() - sessionStartMs)/1000);
+    timerEl.textContent = formatHm(elapsed);
+  }, 1000);
+}
+
+function applyRoleUI(){
+  document.getElementById("userPillName").innerHTML = `<b>${esc(CURRENT_USER.name)}</b> · ${esc(CURRENT_USER.role)}`;
+  document.getElementById("userPill").style.display = "flex";
+  document.getElementById("btnLogout").style.display = "inline-block";
+  document.getElementById("tabActivity").style.display = isFullAuthority(CURRENT_USER.userId) ? "inline-block" : "none";
+}
+
+function showLogin(){
+  document.getElementById("loginScreen").style.display = "flex";
+}
+function hideLogin(){
+  document.getElementById("loginScreen").style.display = "none";
+}
+
+document.getElementById("btnLogin").addEventListener("click", doLoginAttempt);
+document.getElementById("loginPassword").addEventListener("keydown", e=>{ if(e.key==="Enter") doLoginAttempt(); });
+document.getElementById("loginUserId").addEventListener("keydown", e=>{ if(e.key==="Enter") doLoginAttempt(); });
+
+async function doLoginAttempt(){
+  const userId = document.getElementById("loginUserId").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";
+  const btn = document.getElementById("btnLogin");
+  btn.disabled = true; btn.textContent = "Signing in…";
+  const result = await attemptLogin(userId, password);
+  btn.disabled = false; btn.textContent = "Sign In";
+  if(!result.ok){
+    errEl.textContent = result.error;
+    return;
+  }
+  hideLogin();
+  applyRoleUI();
+  startSessionTimer();
+  // default audenza signatory name convenience for Manish/Ankit if they're the Audenza signatory on a deal
+  renderPreview();
+}
+
+document.getElementById("btnLogout").addEventListener("click", async ()=>{
+  if(!confirm("Sign out? Your logged-in time for this session will be recorded.")) return;
+  await endSession();
+  location.reload();
+});
+
+async function initAuth(){
+  const stored = loadStoredSession();
+  if(stored && stored.user && TEAM_DIRECTORY[stored.user.userId]){
+    CURRENT_USER = stored.user;
+    CURRENT_SESSION_ID = stored.sessionId;
+    sessionStartMs = stored.startMs;
+    hideLogin();
+    applyRoleUI();
+    startSessionTimer();
+  } else {
+    showLogin();
+  }
+}
+
+// end session log on tab close (best-effort; browsers may not always flush this)
+window.addEventListener("beforeunload", ()=>{
+  if(CURRENT_SESSION_ID && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE"){
+    const seconds = Math.round((Date.now() - sessionStartMs)/1000);
+    try{
+      // sendBeacon only supports POST, and Supabase PATCH needs custom headers,
+      // so use fetch with keepalive as a best-effort flush on unload.
+      fetch(`${REST}/nda_sessions?id=eq.${CURRENT_SESSION_ID}`, {
+        method:"PATCH",
+        headers: sbHeaders(),
+        body: JSON.stringify({logout_at:new Date().toISOString(), duration_seconds:seconds}),
+        keepalive: true
+      });
+    }catch(e){ /* best effort */ }
+  }
+});
+
+initAuth();
+
+// default effective date = today
+document.getElementById("effDate").value = new Date().toISOString().slice(0,10);
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    if(!CURRENT_USER) return;
+    if(btn.dataset.view === "activity" && !isFullAuthority(CURRENT_USER.userId)) return;
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("view-"+btn.dataset.view).classList.add("active");
+    if(btn.dataset.view === "history") loadHistory();
+    if(btn.dataset.view === "activity") loadTeamActivity();
+  });
+});
+
+/* ============================================================
+   CLAUSE TEXT LIBRARY
+   Mirrors the original DAIS/Audenza NDA wording exactly,
+   with parameterized blanks and toggle-driven inclusion.
+   ============================================================ */
+function fmtDate(iso){
+  if(!iso) return "_____________________";
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"});
+}
+
+function liabilityClauseText(option){
+  if(option === "strict"){
+    return `Except for confidentiality breaches, HIPAA violations, or willful misconduct, aggregate liability shall not exceed fees paid in the preceding 12 months. No cap applies to indemnification for data breaches.`;
+  }
+  if(option === "friendly"){
+    return `Except for confidentiality breaches, HIPAA violations, willful misconduct, or indemnification for data breaches (each of which remains uncapped), the aggregate liability of either Party arising out of or relating to this Agreement shall not exceed the total fees paid or payable under the annual contract value then in effect.`;
+  }
+  // balanced (default)
+  return `Except for confidentiality breaches, HIPAA violations, willful misconduct, or indemnification for data breaches (each of which remains uncapped), the aggregate liability of either Party arising out of or relating to this Agreement shall not exceed two (2) times the total fees paid or payable in the preceding twelve (12) months.`;
+}
+
+function buildClauses(data){
+  const clauses = [];
+  let n = 1;
+
+  clauses.push({n:n++, title:"PURPOSE", body:
+    `The Parties intend to engage in a professional services relationship including audit support, tax return preparation, payroll processing, 401(k) employee benefit plan audit support, GAGAS (Yellow Book) engagements, nonprofit audits, bookkeeping, and related services.`});
+
+  clauses.push({n:n++, title:"CONFIDENTIAL INFORMATION", body:
+    `“Confidential Information” includes all non-public information disclosed by the Firm to ${data.audenzaEntity}, including but not limited to:<br><br>` +
+    `<b>Client Data:</b> Names, Tax IDs (SSNs/EINs), financial statements, bank records, and tax returns.<br>` +
+    `<b>Firm Data:</b> Proprietary workflows, software configurations, pricing models, and employee data.<br>` +
+    `<b>Trade Secrets:</b> Any information that derives independent economic value from not being generally known.`});
+
+  clauses.push({n:n++, title:`OBLIGATIONS OF ${data.audenzaEntity.toUpperCase()}`, body:
+    `${data.audenzaEntity} agrees to:<br><br>` +
+    `<b>Strict Confidentiality:</b> Use the Confidential Information solely for the purpose of performing the outsourced services.<br>` +
+    `<b>Access Control:</b> Limit access to the information only to employees who have a “need to know” and who are bound by individual NDAs no less restrictive than this Agreement.<br>` +
+    `<b>Security Standards:</b> Maintain robust technical and administrative safeguards (e.g., encrypted portals, multi-factor authentication) to prevent unauthorized access or data breaches.<br>` +
+    `<b>No Direct Contact:</b> ${data.audenzaEntity} shall not contact the Firm's clients directly unless expressly authorized in writing.`});
+
+  clauses.push({n:n++, title:"DATA SECURITY & SAFEGUARDS", body:
+    `Receiving Party shall implement safeguards consistent with IRS Publication 4557, AICPA standards, FTC Safeguards Rule, and applicable U.S. laws. Data must be encrypted in transit and at rest. Security incidents must be reported within 24 hours.`});
+
+  if(data.incHipaa){
+    clauses.push({n:n++, title:"HIPAA COMPLIANCE (IF APPLICABLE)", body:
+      `If Protected Health Information (PHI) is disclosed, Service Provider agrees to comply with HIPAA and HITECH requirements and execute a Business Associate Agreement if required.`});
+  }
+
+  if(data.incSoc2 || data.incIso){
+    let frameworks = [];
+    if(data.incSoc2) frameworks.push("SOC 2 Type II");
+    if(data.incIso) frameworks.push("ISO/IEC 27001");
+    clauses.push({n:n++, title:"SOC 2 / ISO 27001 COMPLIANCE", body:
+      `Service Provider represents that it maintains controls aligned with ${frameworks.join(" and/or ")} standards and shall provide evidence upon request.`});
+  }
+
+  clauses.push({n:n++, title:"NON-SOLICITATION", body:
+    `Service Provider shall not solicit CPA Firm clients or employees during the term and for ${data.nonSolicit} thereafter.`});
+
+  clauses.push({n:n++, title:"INDEMNIFICATION", body:
+    `Service Provider shall indemnify and hold harmless CPA Firm from claims, damages, penalties, or losses arising from breach of confidentiality, data security failure, or regulatory non-compliance.`});
+
+  clauses.push({n:n++, title:"LIMITATION OF LIABILITY", body: liabilityClauseText(data.liabilityOption)});
+
+  clauses.push({n:n++, title:"TERM & SURVIVAL", body:
+    `Agreement remains effective for ${data.agreementTerm}. Confidentiality survives ${data.confSurvival === "perpetual" ? "in perpetuity" : data.confSurvival} and indefinitely for tax data and PHI.`});
+
+  clauses.push({n:n++, title:"GOVERNING LAW", body:
+    `Governed by laws of the State of ${data.govState || data.cpaState || "_____________"}, USA. Disputes resolved in ${data.jurisdiction || "courts located in __________"}.`});
+
+  return clauses;
+}
+
+// Tracks who created the NDA currently loaded in the form (null = new/unsaved draft)
+let CURRENT_OPEN_RECORD_OWNER = null;
+let CURRENT_OPEN_RECORD_OWNER_NAME = null;
+
+function gatherFormData(){
+  return {
+    cpaName: document.getElementById("cpaName").value.trim() || "[Full Legal Name of US CPA Firm]",
+    cpaState: document.getElementById("cpaState").value,
+    govState: document.getElementById("govState").value,
+    jurisdiction: document.getElementById("jurisdiction").value.trim(),
+    cpaSigName: document.getElementById("cpaSigName").value.trim(),
+    cpaSigTitle: document.getElementById("cpaSigTitle").value.trim(),
+    cpaAddress: document.getElementById("cpaAddress").value.trim(),
+    audenzaEntity: document.getElementById("audenzaEntity").value,
+    audSigName: document.getElementById("audSigName").value.trim(),
+    audSigTitle: document.getElementById("audSigTitle").value.trim(),
+    effDate: document.getElementById("effDate").value,
+    agreementTerm: document.getElementById("agreementTerm").value,
+    confSurvival: document.getElementById("confSurvival").value,
+    nonSolicit: document.getElementById("nonSolicit").value,
+    liabilityOption: document.getElementById("liabilityOption").value,
+    incHipaa: document.getElementById("incHipaa").checked,
+    incSoc2: document.getElementById("incSoc2").checked,
+    incIso: document.getElementById("incIso").checked,
+    incMutual: document.getElementById("incMutual").checked,
+    ndaNo: document.getElementById("ndaNo").value || null
+  };
+}
+
+/* ============================================================
+   PREVIEW RENDERING
+   ============================================================ */
+function renderPreview(){
+  const data = gatherFormData();
+  const clauses = buildClauses(data);
+
+  const agreementTypeLabel = data.incMutual ? "Mutual Non-Disclosure Agreement" : "Non-Disclosure Agreement";
+  const partyLine = data.incMutual
+    ? `This Mutual Non-Disclosure Agreement (“Agreement”) is entered into by and between ${esc(data.cpaName)}, organized under the laws of the State of <span class="blank">${esc(data.cpaState || "__________")}</span>, USA (“CPA Firm”) and ${esc(data.audenzaEntity)}, organized under the laws of India (“Service Provider”). The Parties agree as follows:`
+    : `This Non-Disclosure Agreement (“Agreement”) is entered into by and between ${esc(data.cpaName)}, organized under the laws of the State of <span class="blank">${esc(data.cpaState || "__________")}</span>, USA (“CPA Firm”) and ${esc(data.audenzaEntity)}, organized under the laws of India (“Service Provider”, “Receiving Party”). The Parties agree as follows:`;
+
+  let html = `
+    <h1>${agreementTypeLabel.toUpperCase()}</h1>
+    <div class="doc-sub">${esc(data.cpaName)} — ${esc(data.audenzaEntity)}</div>
+    <p>Effective Date: <span class="blank">${fmtDate(data.effDate)}</span></p>
+    <p>${partyLine}</p>
+  `;
+
+  clauses.forEach(c=>{
+    html += `<h2>${c.n}. ${c.title}</h2><p>${c.body}</p>`;
+  });
+
+  html += `
+    <h2>SIGNATURES</h2>
+    <div class="sig-block">
+      <p><b>For ${esc(data.cpaName)}</b></p>
+      <p class="sig-line">Name: <span class="blank">${esc(data.cpaSigName || "__________________________")}</span></p>
+      <p class="sig-line">Title: <span class="blank">${esc(data.cpaSigTitle || "__________________________")}</span></p>
+      <p class="sig-line">Signature: <span class="blank">______________________</span></p>
+      <p class="sig-line">Date: <span class="blank">___________________________</span></p>
+    </div>
+    <div class="sig-block">
+      <p><b>For ${esc(data.audenzaEntity)}</b></p>
+      <p class="sig-line">Name: <span class="blank">${esc(data.audSigName || "__________________________")}</span></p>
+      <p class="sig-line">Title: <span class="blank">${esc(data.audSigTitle || "__________________________")}</span></p>
+      <p class="sig-line">Signature: <span class="blank">______________________</span></p>
+      <p class="sig-line">Date: <span class="blank">___________________________</span></p>
+    </div>
+  `;
+
+  document.getElementById("docPreview").innerHTML = html;
+  document.getElementById("previewNdaNo").textContent = data.ndaNo || "unsaved";
+
+  const ownerTagEl = document.getElementById("ownerTag");
+  if(data.ndaNo && CURRENT_OPEN_RECORD_OWNER_NAME){
+    ownerTagEl.innerHTML = `· created by <b>${esc(CURRENT_OPEN_RECORD_OWNER_NAME)}</b>`;
+  } else {
+    ownerTagEl.textContent = "";
+  }
+}
+
+function esc(s){
+  if(s===null || s===undefined) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+document.getElementById("btnPreview").addEventListener("click", renderPreview);
+// live-update on key field changes
+["cpaName","cpaState","govState","jurisdiction","cpaSigName","cpaSigTitle","audenzaEntity","audSigName","audSigTitle","effDate","agreementTerm","confSurvival","nonSolicit","liabilityOption","incHipaa","incSoc2","incIso","incMutual"]
+  .forEach(id=> document.getElementById(id).addEventListener("change", renderPreview));
+
+renderPreview();
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, type=""){
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 4200);
+}
+
+/* ============================================================
+   SUPABASE: connection check, save, numbering, history
+   ============================================================ */
+async function checkConnection(){
+  const el = document.getElementById("connStatus");
+  if(SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE"){
+    el.textContent = "⚠ Supabase key not set";
+    el.style.background = "rgba(192,57,43,.25)";
+    return;
+  }
+  try{
+    const res = await fetch(`${REST}/nda_master?select=id&limit=1`, {headers: sbHeaders()});
+    if(res.ok){ el.textContent = "● Connected"; el.style.background="rgba(46,160,90,.25)"; }
+    else { el.textContent = "⚠ Connection error"; el.style.background="rgba(192,57,43,.25)"; }
+  }catch(e){
+    el.textContent = "⚠ Offline";
+    el.style.background="rgba(192,57,43,.25)";
+  }
+}
+checkConnection();
+
+async function getNextNdaNumber(){
+  const year = new Date().getFullYear();
+  const res = await fetch(`${REST}/nda_master?select=nda_no&nda_no=like.NDA-${year}-*&order=nda_no.desc&limit=1`, {headers: sbHeaders()});
+  if(!res.ok) throw new Error("Could not fetch latest NDA number");
+  const rows = await res.json();
+  let next = 1;
+  if(rows.length){
+    const last = rows[0].nda_no; // e.g. NDA-2026-007
+    const parts = last.split("-");
+    next = parseInt(parts[2], 10) + 1;
+  }
+  return `NDA-${year}-${String(next).padStart(3,"0")}`;
+}
+
+document.getElementById("btnSaveSupabase").addEventListener("click", async ()=>{
+  if(!CURRENT_USER){ toast("Please sign in first.", "error"); return; }
+  const data = gatherFormData();
+  if(!data.cpaName || data.cpaName.startsWith("[")){
+    toast("Enter the CPA firm's legal name before saving.", "error"); return;
+  }
+  if(SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE"){
+    toast("Supabase anon key is not configured yet in this file.", "error"); return;
+  }
+  if(data.ndaNo && CURRENT_OPEN_RECORD_OWNER && !isFullAuthority(CURRENT_USER.userId) && CURRENT_OPEN_RECORD_OWNER !== CURRENT_USER.userId){
+    toast("You can only edit NDAs you created. Ask a Partner/Manager for changes to this one.", "error");
+    return;
+  }
+  const statusEl = document.getElementById("saveStatus");
+  statusEl.textContent = "Saving…";
+  try{
+    let ndaNo = data.ndaNo;
+    let isNew = !ndaNo;
+    if(isNew){
+      ndaNo = await getNextNdaNumber();
+    }
+
+    const payload = {
+      nda_no: ndaNo,
+      effective_date: data.effDate || null,
+      cpa_firm_name: data.cpaName,
+      state: data.cpaState || null,
+      governing_state: data.govState || data.cpaState || null,
+      jurisdiction: data.jurisdiction || null,
+      signatory_name: data.cpaSigName || null,
+      designation: data.cpaSigTitle || null,
+      audenza_entity: data.audenzaEntity,
+      audenza_signatory: data.audSigName || null,
+      audenza_designation: data.audSigTitle || null,
+      agreement_term: data.agreementTerm,
+      confidentiality_survival: data.confSurvival,
+      non_solicit_period: data.nonSolicit,
+      liability_option: data.liabilityOption,
+      include_hipaa: data.incHipaa,
+      include_soc2: data.incSoc2,
+      include_iso: data.incIso,
+      is_mutual: data.incMutual,
+      status: isNew ? "Draft" : undefined,
+      created_by: isNew ? CURRENT_USER.userId : undefined,
+      created_by_name: isNew ? CURRENT_USER.name : undefined,
+      last_edited_by: CURRENT_USER.userId,
+      last_edited_by_name: CURRENT_USER.name
+    };
+    Object.keys(payload).forEach(k=> payload[k]===undefined && delete payload[k]);
+
+    let res;
+    if(isNew){
+      res = await fetch(`${REST}/nda_master`, {
+        method: "POST",
+        headers: sbHeaders({Prefer:"return=representation"}),
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(`${REST}/nda_master?nda_no=eq.${encodeURIComponent(ndaNo)}`, {
+        method: "PATCH",
+        headers: sbHeaders({Prefer:"return=representation"}),
+        body: JSON.stringify(payload)
+      });
+    }
+
+    if(!res.ok){
+      const errText = await res.text();
+      throw new Error(errText);
+    }
+
+    document.getElementById("ndaNo").value = ndaNo;
+    if(isNew){
+      CURRENT_OPEN_RECORD_OWNER = CURRENT_USER.userId;
+      CURRENT_OPEN_RECORD_OWNER_NAME = CURRENT_USER.name;
+    }
+    renderPreview();
+    statusEl.textContent = `Saved as ${ndaNo} at ${new Date().toLocaleTimeString()}.`;
+    toast(`Saved — ${ndaNo}`, "ok");
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = "";
+    toast("Save failed. Check Supabase table/columns — see console for details.", "error");
+  }
+});
+
+document.getElementById("btnNewNda").addEventListener("click", ()=>{
+  if(!confirm("Clear the form and start a new NDA? Unsaved changes will be lost.")) return;
+  ["cpaName","cpaSigName","cpaSigTitle","cpaAddress","jurisdiction","audSigName","ndaNo"].forEach(id=>{
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("cpaState").value = "";
+  document.getElementById("govState").value = "";
+  document.getElementById("audenzaEntity").value = "Audenza Private Limited";
+  document.getElementById("audSigTitle").value = "Partner";
+  document.getElementById("effDate").value = new Date().toISOString().slice(0,10);
+  document.getElementById("agreementTerm").value = "3 years";
+  document.getElementById("confSurvival").value = "5 years";
+  document.getElementById("nonSolicit").value = "24 months";
+  document.getElementById("liabilityOption").value = "balanced";
+  document.getElementById("incHipaa").checked = true;
+  document.getElementById("incSoc2").checked = true;
+  document.getElementById("incIso").checked = true;
+  document.getElementById("incMutual").checked = true;
+  CURRENT_OPEN_RECORD_OWNER = null;
+  CURRENT_OPEN_RECORD_OWNER_NAME = null;
+  document.getElementById("saveStatus").textContent = "";
+  renderPreview();
+});
+
+/* ============================================================
+   HISTORY VIEW
+   ============================================================ */
+async function loadHistory(){
+  const wrap = document.getElementById("historyTableWrap");
+  wrap.innerHTML = '<div class="empty-state">Loading…</div>';
+  if(SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE"){
+    wrap.innerHTML = '<div class="empty-state">Supabase key not configured.</div>';
+    return;
+  }
+  try{
+    const fullAuth = isFullAuthority(CURRENT_USER.userId);
+    let url = `${REST}/nda_master?select=*&order=created_at.desc`;
+    if(!fullAuth){
+      url += `&created_by=eq.${encodeURIComponent(CURRENT_USER.userId)}`;
+    }
+    const res = await fetch(url, {headers: sbHeaders()});
+    if(!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+    if(!rows.length){
+      wrap.innerHTML = fullAuth
+        ? '<div class="empty-state">No NDAs saved yet. Generate one and click "Save & Assign NDA No."</div>'
+        : '<div class="empty-state">You haven\'t created any NDAs yet. Generate one and click "Save & Assign NDA No." — it will appear here.</div>';
+      return;
+    }
+    const statuses = ["Draft","Sent","Under Review","Signed","Expired"];
+    let html = `<table class="history"><thead><tr>
+      <th>NDA No.</th><th>CPA Firm</th><th>State</th><th>Effective Date</th>${fullAuth ? "<th>Created By</th>" : ""}<th>Status</th><th></th>
+    </tr></thead><tbody>`;
+    rows.forEach(r=>{
+      const canEditStatus = fullAuth || r.created_by === CURRENT_USER.userId;
+      html += `<tr>
+        <td><b>${esc(r.nda_no)}</b></td>
+        <td>${esc(r.cpa_firm_name)}</td>
+        <td>${esc(r.state||"—")}</td>
+        <td>${r.effective_date ? esc(r.effective_date) : "—"}</td>
+        ${fullAuth ? `<td>${esc(r.created_by_name || r.created_by || "—")}</td>` : ""}
+        <td>
+          <select class="status-select" data-ndano="${esc(r.nda_no)}" onchange="updateStatus(this)" ${canEditStatus ? "" : "disabled"}>
+            ${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}
+          </select>
+        </td>
+        <td><button class="btn btn-outline" style="padding:5px 10px;font-size:12px;" onclick="loadIntoGenerator('${esc(r.nda_no)}')">Open</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    wrap.innerHTML = html;
+  }catch(e){
+    console.error(e);
+    wrap.innerHTML = '<div class="empty-state">Could not load history. Check Supabase connection/table.</div>';
+  }
+}
+
+async function updateStatus(selectEl){
+  const ndaNo = selectEl.dataset.ndano;
+  const newStatus = selectEl.value;
+  try{
+    const res = await fetch(`${REST}/nda_master?nda_no=eq.${encodeURIComponent(ndaNo)}`, {
+      method:"PATCH",
+      headers: sbHeaders(),
+      body: JSON.stringify({status:newStatus})
+    });
+    if(!res.ok) throw new Error(await res.text());
+    toast(`${ndaNo} marked ${newStatus}`, "ok");
+  }catch(e){
+    console.error(e);
+    toast("Could not update status.", "error");
+  }
+}
+
+/* ============================================================
+   TEAM ACTIVITY VIEW (Partner/Manager only)
+   ============================================================ */
+async function loadTeamActivity(){
+  if(!isFullAuthority(CURRENT_USER.userId)) return;
+  const teamWrap = document.getElementById("teamTableWrap");
+  const sessWrap = document.getElementById("sessionTableWrap");
+  teamWrap.innerHTML = '<div class="empty-state">Loading…</div>';
+  sessWrap.innerHTML = '<div class="empty-state">Loading…</div>';
+
+  if(SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY_HERE"){
+    teamWrap.innerHTML = '<div class="empty-state">Supabase key not configured.</div>';
+    sessWrap.innerHTML = "";
+    return;
+  }
+
+  try{
+    const res = await fetch(`${REST}/nda_sessions?select=*&order=login_at.desc&limit=500`, {headers: sbHeaders()});
+    if(!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+
+    // Aggregate total seconds per user_id (closed sessions only use duration_seconds;
+    // the currently active session for the signed-in user adds live elapsed time)
+    const totals = {};
+    Object.keys(TEAM_DIRECTORY).forEach(uid=> totals[uid] = 0);
+    rows.forEach(r=>{
+      if(typeof r.duration_seconds === "number"){
+        totals[r.user_id] = (totals[r.user_id]||0) + r.duration_seconds;
+      }
+    });
+    if(CURRENT_USER && sessionStartMs){
+      totals[CURRENT_USER.userId] = (totals[CURRENT_USER.userId]||0) + Math.round((Date.now()-sessionStartMs)/1000);
+    }
+
+    let teamHtml = `<table class="history"><thead><tr>
+      <th>Name</th><th>User ID</th><th>Role</th><th>Authority</th><th>Total Logged-in Time</th>
+    </tr></thead><tbody>`;
+    Object.entries(TEAM_DIRECTORY).forEach(([uid, info])=>{
+      teamHtml += `<tr>
+        <td><b>${esc(info.name)}</b></td>
+        <td>${esc(uid)}</td>
+        <td>${esc(info.role)}</td>
+        <td>${esc(info.authority)}</td>
+        <td>${formatHm(totals[uid]||0)}</td>
+      </tr>`;
+    });
+    teamHtml += `</tbody></table>`;
+    teamWrap.innerHTML = teamHtml;
+
+    if(!rows.length){
+      sessWrap.innerHTML = '<div class="empty-state">No sessions logged yet.</div>';
+    } else {
+      let sessHtml = `<table class="history"><thead><tr>
+        <th>Name</th><th>Login</th><th>Logout</th><th>Duration</th>
+      </tr></thead><tbody>`;
+      rows.slice(0,50).forEach(r=>{
+        const loginStr = r.login_at ? new Date(r.login_at).toLocaleString() : "—";
+        const logoutStr = r.logout_at ? new Date(r.logout_at).toLocaleString() : "— (active)";
+        const durStr = typeof r.duration_seconds === "number" ? formatHm(r.duration_seconds) : "—";
+        sessHtml += `<tr>
+          <td>${esc(r.display_name||r.user_id)}</td>
+          <td>${esc(loginStr)}</td>
+          <td>${esc(logoutStr)}</td>
+          <td>${durStr}</td>
+        </tr>`;
+      });
+      sessHtml += `</tbody></table>`;
+      sessWrap.innerHTML = sessHtml;
+    }
+  }catch(e){
+    console.error(e);
+    teamWrap.innerHTML = '<div class="empty-state">Could not load team activity. Check the nda_sessions table.</div>';
+    sessWrap.innerHTML = "";
+  }
+}
+
+
+async function loadIntoGenerator(ndaNo){
+  try{
+    const rows = await res.json();
+    if(!rows.length){ toast("Record not found.", "error"); return; }
+    const r = rows[0];
+
+    if(!isFullAuthority(CURRENT_USER.userId) && r.created_by !== CURRENT_USER.userId){
+      toast("You can only open NDAs you created.", "error");
+      return;
+    }
+
+    document.getElementById("cpaName").value = r.cpa_firm_name || "";
+    document.getElementById("cpaState").value = r.state || "";
+    document.getElementById("govState").value = r.governing_state && r.governing_state !== r.state ? r.governing_state : "";
+    document.getElementById("jurisdiction").value = r.jurisdiction || "";
+    document.getElementById("cpaSigName").value = r.signatory_name || "";
+    document.getElementById("cpaSigTitle").value = r.designation || "";
+    document.getElementById("audenzaEntity").value = r.audenza_entity || "Audenza Private Limited";
+    document.getElementById("audSigName").value = r.audenza_signatory || "";
+    document.getElementById("audSigTitle").value = r.audenza_designation || "";
+    document.getElementById("effDate").value = r.effective_date || "";
+    document.getElementById("agreementTerm").value = r.agreement_term || "3 years";
+    document.getElementById("confSurvival").value = r.confidentiality_survival || "5 years";
+    document.getElementById("nonSolicit").value = r.non_solicit_period || "24 months";
+    document.getElementById("liabilityOption").value = r.liability_option || "balanced";
+    document.getElementById("incHipaa").checked = !!r.include_hipaa;
+    document.getElementById("incSoc2").checked = !!r.include_soc2;
+    document.getElementById("incIso").checked = !!r.include_iso;
+    document.getElementById("incMutual").checked = r.is_mutual !== false;
+    document.getElementById("ndaNo").value = r.nda_no;
+
+    CURRENT_OPEN_RECORD_OWNER = r.created_by || null;
+    CURRENT_OPEN_RECORD_OWNER_NAME = r.created_by_name || null;
+
+    renderPreview();
+    document.querySelector('.tab-btn[data-view="generator"]').click();
+    toast(`Loaded ${ndaNo} into generator.`, "ok");
+  }catch(e){
+    console.error(e);
+    toast("Could not load record.", "error");
+  }
+}
+
+/* ============================================================
+   DOCX GENERATION (docx.js — dolanmiu)
+   ============================================================ */
+async function generateDocxBlob(){
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel } = docx;
+  const data = gatherFormData();
+  const clauses = buildClauses(data);
+
+  function stripHtml(html){
+    return html.replace(/<br\s*\/?>/gi, "\n").replace(/<b>/gi,"\u0001").replace(/<\/b>/gi,"\u0002").replace(/<[^>]+>/g,"");
+  }
+
+  function paraFromMarked(text){
+    // splits on \u0001..\u0002 to bold segments, \n to line breaks
+    const lines = text.split("\n");
+    const children = [];
+    lines.forEach((line, idx)=>{
+      const segs = line.split(/(\u0001[^\u0002]*\u0002)/g).filter(Boolean);
+      segs.forEach(seg=>{
+        if(seg.startsWith("\u0001")){
+          children.push(new TextRun({text: seg.slice(1,-1), bold:true}));
+        } else if(seg.length){
+          children.push(new TextRun({text: seg}));
+        }
+      });
+      if(idx < lines.length-1) children.push(new TextRun({text:"", break:1}));
+    });
+    return children;
+  }
+
+  const agreementTypeLabel = data.incMutual ? "MUTUAL NON-DISCLOSURE AGREEMENT" : "NON-DISCLOSURE AGREEMENT";
+  const partyLine = data.incMutual
+    ? `This Mutual Non-Disclosure Agreement (\u201CAgreement\u201D) is entered into by and between ${data.cpaName}, organized under the laws of the State of ${data.cpaState || "__________"}, USA (\u201CCPA Firm\u201D) and ${data.audenzaEntity}, organized under the laws of India (\u201CService Provider\u201D). The Parties agree as follows:`
+    : `This Non-Disclosure Agreement (\u201CAgreement\u201D) is entered into by and between ${data.cpaName}, organized under the laws of the State of ${data.cpaState || "__________"}, USA (\u201CCPA Firm\u201D) and ${data.audenzaEntity}, organized under the laws of India (\u201CService Provider\u201D, \u201CReceiving Party\u201D). The Parties agree as follows:`;
+
+  const children = [];
+
+  children.push(new Paragraph({
+    text: agreementTypeLabel,
+    heading: HeadingLevel.HEADING_1,
+    alignment: AlignmentType.CENTER,
+    spacing:{after:80}
+  }));
+  children.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing:{after:200},
+    children:[new TextRun({text:`${data.cpaName} \u2013 ${data.audenzaEntity}`, italics:true})]
+  }));
+  children.push(new Paragraph({
+    spacing:{after:160},
+    children:[new TextRun({text:`Effective Date: ${fmtDate(data.effDate)}`})]
+  }));
+  children.push(new Paragraph({
+    spacing:{after:200},
+    children:[new TextRun({text: partyLine})]
+  }));
+
+  clauses.forEach(c=>{
+    children.push(new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing:{before:200, after:80},
+      children:[new TextRun({text:`${c.n}. ${c.title}`, bold:true})]
+    }));
+    children.push(new Paragraph({
+      spacing:{after:120},
+      children: paraFromMarked(stripHtml(c.body))
+    }));
+  });
+
+  children.push(new Paragraph({
+    heading: HeadingLevel.HEADING_2,
+    spacing:{before:240, after:120},
+    children:[new TextRun({text:"SIGNATURES", bold:true})]
+  }));
+
+  function sigBlock(entityName, sigName, sigTitle){
+    return [
+      new Paragraph({spacing:{before:160, after:60}, children:[new TextRun({text:`For ${entityName}`, bold:true})]}),
+      new Paragraph({children:[new TextRun({text:`Name: ${sigName || "__________________________"}`})]}),
+      new Paragraph({children:[new TextRun({text:`Title: ${sigTitle || "__________________________"}`})]}),
+      new Paragraph({children:[new TextRun({text:"Signature: ______________________"})]}),
+      new Paragraph({children:[new TextRun({text:"Date: ___________________________"})]}),
+    ];
+  }
+  children.push(...sigBlock(data.cpaName, data.cpaSigName, data.cpaSigTitle));
+  children.push(...sigBlock(data.audenzaEntity, data.audSigName, data.audSigTitle));
+
+  const doc = new Document({
+    styles:{
+      default:{ document:{ run:{ font:"Times New Roman", size:24 } } },
+      paragraphStyles:[
+        { id:"Heading1", name:"Heading 1", basedOn:"Normal", next:"Normal", quickFormat:true,
+          run:{size:30, bold:true, font:"Times New Roman"},
+          paragraph:{spacing:{before:0,after:80}, outlineLevel:0} },
+        { id:"Heading2", name:"Heading 2", basedOn:"Normal", next:"Normal", quickFormat:true,
+          run:{size:25, bold:true, font:"Times New Roman"},
+          paragraph:{spacing:{before:200,after:80}, outlineLevel:1} }
+      ]
+    },
+    sections:[{
+      properties:{
+        page:{
+          size:{width:12240, height:15840},
+          margin:{top:1440,right:1440,bottom:1440,left:1440}
+        }
+      },
+      children
+    }]
+  });
+
+  return await Packer.toBlob(doc);
+}
+
+document.getElementById("btnDownloadDocx").addEventListener("click", async ()=>{
+  const btn = document.getElementById("btnDownloadDocx");
+  btn.disabled = true; btn.textContent = "Generating…";
+  try{
+    const blob = await generateDocxBlob();
+    const data = gatherFormData();
+    const filename = `NDA_${(data.ndaNo||"DRAFT")}_${(data.cpaName||"CPA").replace(/[^a-z0-9]+/gi,"_")}.docx`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast("Word document downloaded.", "ok");
+  }catch(e){
+    console.error(e);
+    toast("Could not generate Word document.", "error");
+  }finally{
+    btn.disabled=false; btn.innerHTML="⬇ Word (.docx)";
+  }
+});
+
+/* ============================================================
+   PDF GENERATION (jsPDF — text-flow renderer)
+   ============================================================ */
+document.getElementById("btnDownloadPdf").addEventListener("click", ()=>{
+  const btn = document.getElementById("btnDownloadPdf");
+  btn.disabled = true; btn.textContent = "Generating…";
+  try{
+    const { jsPDF } = window.jspdf;
+    const data = gatherFormData();
+    const clauses = buildClauses(data);
+    const doc = new jsPDF({unit:"pt", format:"letter"});
+    const marginX = 60, maxWidth = 612 - marginX*2;
+    let y = 60;
+    const lineHeight = 14;
+
+    function stripHtml(html){
+      return html.replace(/<br\s*\/?>/gi, "\n").replace(/<\/?b>/gi,"").replace(/<[^>]+>/g,"");
+    }
+    function ensureSpace(extra=lineHeight){
+      if(y + extra > 752){ doc.addPage(); y = 60; }
+    }
+    function writeParagraph(text, opts={}){
+      doc.setFont("times", opts.bold ? "bold" : "normal");
+      doc.setFontSize(opts.size || 11);
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach(line=>{
+        ensureSpace();
+        doc.text(line, marginX, y);
+        y += lineHeight;
+      });
+    }
+
+    doc.setFont("times","bold"); doc.setFontSize(15);
+    const title = data.incMutual ? "MUTUAL NON-DISCLOSURE AGREEMENT" : "NON-DISCLOSURE AGREEMENT";
+    doc.text(title, 306, y, {align:"center"}); y += 20;
+    doc.setFont("times","italic"); doc.setFontSize(11);
+    doc.text(`${data.cpaName} \u2013 ${data.audenzaEntity}`, 306, y, {align:"center"}); y += 24;
+
+    writeParagraph(`Effective Date: ${fmtDate(data.effDate)}`); y += 4;
+
+    const partyLine = data.incMutual
+      ? `This Mutual Non-Disclosure Agreement (\u201CAgreement\u201D) is entered into by and between ${data.cpaName}, organized under the laws of the State of ${data.cpaState || "__________"}, USA (\u201CCPA Firm\u201D) and ${data.audenzaEntity}, organized under the laws of India (\u201CService Provider\u201D). The Parties agree as follows:`
+      : `This Non-Disclosure Agreement (\u201CAgreement\u201D) is entered into by and between ${data.cpaName}, organized under the laws of the State of ${data.cpaState || "__________"}, USA (\u201CCPA Firm\u201D) and ${data.audenzaEntity}, organized under the laws of India (\u201CService Provider\u201D, \u201CReceiving Party\u201D). The Parties agree as follows:`;
+    writeParagraph(partyLine); y += 6;
+
+    clauses.forEach(c=>{
+      ensureSpace(20);
+      writeParagraph(`${c.n}. ${c.title}`, {bold:true, size:12});
+      y += 2;
+      writeParagraph(stripHtml(c.body));
+      y += 6;
+    });
+
+    ensureSpace(24);
+    writeParagraph("SIGNATURES", {bold:true, size:12});
+    y += 8;
+
+    function sigBlockPdf(entityName, sigName, sigTitle){
+      ensureSpace(80);
+      writeParagraph(`For ${entityName}`, {bold:true});
+      writeParagraph(`Name: ${sigName || "__________________________"}`);
+      writeParagraph(`Title: ${sigTitle || "__________________________"}`);
+      writeParagraph(`Signature: ______________________`);
+      writeParagraph(`Date: ___________________________`);
+      y += 10;
+    }
+    sigBlockPdf(data.cpaName, data.cpaSigName, data.cpaSigTitle);
+    sigBlockPdf(data.audenzaEntity, data.audSigName, data.audSigTitle);
+
+    const filename = `NDA_${(data.ndaNo||"DRAFT")}_${(data.cpaName||"CPA").replace(/[^a-z0-9]+/gi,"_")}.pdf`;
+    doc.save(filename);
+    toast("PDF downloaded.", "ok");
+  }catch(e){
+    console.error(e);
+    toast("Could not generate PDF.", "error");
+  }finally{
+    btn.disabled=false; btn.innerHTML="⬇ PDF";
+  }
+});
+</script>
+</body>
+</html>
